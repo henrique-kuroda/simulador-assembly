@@ -1,0 +1,11 @@
+C:\Users\henri\Documents\MeusProjetos\windows-forms\WinFormsDemo\bin\Debug\WinFormsDemo.exe.config
+C:\Users\henri\Documents\MeusProjetos\windows-forms\WinFormsDemo\bin\Debug\WinFormsDemo.exe
+C:\Users\henri\Documents\MeusProjetos\windows-forms\WinFormsDemo\bin\Debug\WinFormsDemo.pdb
+C:\Users\henri\Documents\MeusProjetos\windows-forms\WinFormsDemo\obj\Debug\WinFormsDemo.csproj.AssemblyReference.cache
+C:\Users\henri\Documents\MeusProjetos\windows-forms\WinFormsDemo\obj\Debug\WinFormsDemo.Properties.Resources.resources
+C:\Users\henri\Documents\MeusProjetos\windows-forms\WinFormsDemo\obj\Debug\WinFormsDemo.csproj.GenerateResource.cache
+C:\Users\henri\Documents\MeusProjetos\windows-forms\WinFormsDemo\obj\Debug\WinFormsDemo.csproj.CoreCompileInputs.cache
+C:\Users\henri\Documents\MeusProjetos\windows-forms\WinFormsDemo\obj\Debug\WinFormsDemo.exe
+C:\Users\henri\Documents\MeusProjetos\windows-forms\WinFormsDemo\obj\Debug\WinFormsDemo.pdb
+C:\Users\henri\Documents\MeusProjetos\windows-forms\WinFormsDemo\obj\Debug\WinFormsDemo.Main.resources
+C:\Users\henri\Documents\MeusProjetos\windows-forms\WinFormsDemo\obj\Debug\WinFormsDemo.exe.config
