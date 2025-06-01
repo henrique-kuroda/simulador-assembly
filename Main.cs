@@ -7,6 +7,8 @@ namespace WinFormsDemo
 {
     public partial class Main : Form
     {
+        private int linhaAtual = 0;
+
         public Main()
         {
             InitializeComponent();
@@ -56,6 +58,7 @@ namespace WinFormsDemo
             if (openFile.ShowDialog() == DialogResult.OK)
             {
                 txtCodigoAssembly.Text = System.IO.File.ReadAllText(openFile.FileName);
+                linhaAtual = 0;
             }
         }
 
@@ -69,9 +72,27 @@ namespace WinFormsDemo
             int clockAtual = int.Parse(lblClockValor.Text);
             lblClockValor.Text = (clockAtual + 1).ToString();
 
-            // Exemplo de avanço de PC e instrução fictícia
-            txtInstrucaoAtual.Text = "0x00430820";
-            lblPCValor.Text = $"0x004000{clockAtual + 1:X2}";
+            // Avança a execução linha por linha
+            string[] linhas = txtCodigoAssembly.Lines;
+
+            if (linhaAtual < linhas.Length)
+            {
+                // Remove destaque anterior
+                txtCodigoAssembly.SelectAll();
+                txtCodigoAssembly.SelectionBackColor = txtCodigoAssembly.BackColor;
+
+                // Destaca linha atual
+                int start = txtCodigoAssembly.GetFirstCharIndexFromLine(linhaAtual);
+                int length = linhas[linhaAtual].Length;
+                txtCodigoAssembly.Select(start, length);
+                txtCodigoAssembly.SelectionBackColor = System.Drawing.Color.Yellow;
+
+                // Atualiza PC e instrução (só simulação visual por enquanto)
+                txtInstrucaoAtual.Text = linhas[linhaAtual];
+                lblPCValor.Text = $"0x004000{clockAtual + 1:X2}";
+
+                linhaAtual++;
+            }
         }
 
         private void btnResetar_Click(object sender, EventArgs e)
@@ -79,6 +100,9 @@ namespace WinFormsDemo
             lblClockValor.Text = "0";
             lblPCValor.Text = "0x00400000";
             txtInstrucaoAtual.Text = "";
+            linhaAtual = 0;
+            txtCodigoAssembly.SelectAll();
+            txtCodigoAssembly.SelectionBackColor = txtCodigoAssembly.BackColor;
         }
     }
 }
