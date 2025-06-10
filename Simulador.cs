@@ -257,7 +257,6 @@ namespace WinFormsDemo
                         imm = ParseImmediate(partes[2]);
                         if (rt != 0) registradores[rt] = imm;
                         return PC + 4;
-                    // LUI foi removido daqui
                     case "la":
                         rt = ParseRegistrador(partes[1]);
                         if (labels.TryGetValue(partes[2], out long labelAddr))
@@ -266,8 +265,6 @@ namespace WinFormsDemo
                         }
                         else throw new KeyNotFoundException($"Label '{partes[2]}' não encontrado.");
                         return PC + 4;
-                    // --- SWITCH ATUALIZADO ---
-                    // LBU e LHU removidos da lista de casos
                     case "lw":
                     case "sw":
                     case "lb":
@@ -331,11 +328,8 @@ namespace WinFormsDemo
             if (!memoria.ContainsKey(alignedAddr)) memoria[alignedAddr] = 0;
             int word = memoria[alignedAddr];
 
-            // --- VERIFICAÇÃO DE ALINHAMENTO ATUALIZADA ---
             if ((inst == "lh" || inst == "sh") && addr % 2 != 0) throw new Exception($"Erro de alinhamento em {inst}.");
 
-            // --- SWITCH ATUALIZADO ---
-            // LBU e LHU removidos
             switch (inst)
             {
                 case "lw": registradores[rtReg] = word; break;
