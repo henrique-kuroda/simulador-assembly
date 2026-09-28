@@ -25,6 +25,7 @@ namespace WinFormsDemo
 
         private int clkI = 1, clkJ = 1, clkR = 1;
         private int ciclosRestantes = 0;
+        private long pcInstrucaoAtual;
 
         private readonly Dictionary<string, int> opcodes = new Dictionary<string, int>
         {
@@ -185,6 +186,7 @@ namespace WinFormsDemo
             }
 
             InstrucaoAtual = linhaExec;
+            pcInstrucaoAtual = PC;
             var partes = ParseInstrucao(linhaExec);
             string instrucao = partes[0].ToLower();
 
@@ -461,8 +463,9 @@ namespace WinFormsDemo
                     {
                         int rs = ParseRegistrador(partes[1]);
                         int rt = ParseRegistrador(partes[2]);
-                        long targetAddr = labels[partes[3]];
-                        int offset = (int)((targetAddr - (PC + 4)) / 4);
+                        int offset = labels.TryGetValue(partes[3], out long targetAddr)
+                            ? (int)((targetAddr - (pcInstrucaoAtual + 4)) / 4)
+                            : ParseImmediate(partes[3]);
                         codigoMaquina |= (uint)rs << 21;
                         codigoMaquina |= (uint)rt << 16;
                         codigoMaquina |= (uint)(offset & 0xFFFF);
