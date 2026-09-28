@@ -30,7 +30,7 @@ namespace WinFormsDemo
         private readonly Dictionary<string, int> opcodes = new Dictionary<string, int>
         {
             { "add", 0 }, { "sub", 0 }, { "and", 0 }, { "or", 0 }, { "nor", 0 },
-            { "slt", 0 }, { "sltu", 0 }, { "sll", 0 }, { "srl", 0 }, { "jr", 0 },
+            { "slt", 0 }, { "sltu", 0 }, { "sll", 0 }, { "srl", 0 }, { "jr", 0 }, { "syscall", 0 },
             { "addi", 8 }, { "slti", 10 }, { "sltiu", 11 }, { "andi", 12 }, { "ori", 13 },
             { "lw", 35 }, { "sw", 43 }, { "lh", 33 }, { "sh", 41 }, { "lb", 32 }, { "sb", 40 },
             { "beq", 4 }, { "bne", 5 }, { "j", 2 }, { "jal", 3 },{ "li", 13 }
@@ -39,7 +39,7 @@ namespace WinFormsDemo
         private readonly Dictionary<string, int> functs = new Dictionary<string, int>
         {
             { "add", 32 }, { "sub", 34 }, { "and", 36 }, { "or", 37 }, { "nor", 39 },
-            { "slt", 42 }, { "sltu", 43 }, { "sll", 0 }, { "srl", 2 }, { "jr", 8 }
+            { "slt", 42 }, { "sltu", 43 }, { "sll", 0 }, { "srl", 2 }, { "jr", 8 }, { "syscall", 12 }
         };
 
 
@@ -192,7 +192,7 @@ namespace WinFormsDemo
 
             PC = ExecutarInstrucao(instrucao, partes);
 
-            if (new[] { "add", "sub", "and", "or", "nor", "sll", "srl", "slt", "sltu", "jr" }.Contains(instrucao)) ciclosRestantes = clkR;
+            if (new[] { "add", "sub", "and", "or", "nor", "sll", "srl", "slt", "sltu", "jr", "syscall" }.Contains(instrucao)) ciclosRestantes = clkR;
             else if (new[] { "addi", "lw", "sw", "lh", "sh", "lb", "sb", "andi", "ori", "beq", "bne", "la", "li" }.Contains(instrucao)) ciclosRestantes = clkI;
             else if (new[] { "j", "jal" }.Contains(instrucao)) ciclosRestantes = clkJ;
             else ciclosRestantes = 1;
@@ -310,6 +310,11 @@ namespace WinFormsDemo
                         return ParseImmediate(partes[1]);
                     case "jr": return (long)(uint)registradores[ParseRegistrador(partes[1])];
                     case "nop": return PC + 4;
+                    case "syscall":
+                        int servico = registradores[2];
+                        if (servico == 10 || servico == 17) Terminou = true;
+                        else throw new NotSupportedException($"Serviço de syscall $v0={servico} não suportado.");
+                        return PC + 4;
                     default: throw new ArgumentException($"Instrução '{inst}' não reconhecida.");
                 }
             }
@@ -417,7 +422,8 @@ namespace WinFormsDemo
                 if (opcode == 0)
                 {
                     int funct = functs[inst];
-                    if (inst == "jr")
+                    if (inst == "syscall") { }
+                    else if (inst == "jr")
                     {
                         int rs = ParseRegistrador(partes[1]);
                         codigoMaquina |= (uint)rs << 21;
