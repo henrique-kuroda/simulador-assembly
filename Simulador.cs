@@ -33,13 +33,14 @@ namespace WinFormsDemo
             { "slt", 0 }, { "sltu", 0 }, { "sll", 0 }, { "srl", 0 }, { "jr", 0 }, { "syscall", 0 },
             { "addi", 8 }, { "slti", 10 }, { "sltiu", 11 }, { "andi", 12 }, { "ori", 13 },
             { "lw", 35 }, { "sw", 43 }, { "lh", 33 }, { "sh", 41 }, { "lb", 32 }, { "sb", 40 },
-            { "beq", 4 }, { "bne", 5 }, { "j", 2 }, { "jal", 3 },{ "li", 13 }
+            { "beq", 4 }, { "bne", 5 }, { "j", 2 }, { "jal", 3 },{ "li", 13 },
+            { "lui", 15 }, { "mul", 28 }
         };
 
         private readonly Dictionary<string, int> functs = new Dictionary<string, int>
         {
             { "add", 32 }, { "sub", 34 }, { "and", 36 }, { "or", 37 }, { "nor", 39 },
-            { "slt", 42 }, { "sltu", 43 }, { "sll", 0 }, { "srl", 2 }, { "jr", 8 }, { "syscall", 12 }
+            { "slt", 42 }, { "sltu", 43 }, { "sll", 0 }, { "srl", 2 }, { "jr", 8 }, { "syscall", 12 }, { "mul", 2 }
         };
 
 
@@ -192,8 +193,8 @@ namespace WinFormsDemo
 
             PC = ExecutarInstrucao(instrucao, partes);
 
-            if (new[] { "add", "sub", "and", "or", "nor", "sll", "srl", "slt", "sltu", "jr", "syscall" }.Contains(instrucao)) ciclosRestantes = clkR;
-            else if (new[] { "addi", "lw", "sw", "lh", "sh", "lb", "sb", "andi", "ori", "beq", "bne", "la", "li" }.Contains(instrucao)) ciclosRestantes = clkI;
+            if (new[] { "add", "sub", "and", "or", "nor", "sll", "srl", "slt", "sltu", "jr", "syscall", "mul" }.Contains(instrucao)) ciclosRestantes = clkR;
+            else if (new[] { "addi", "lui","lw", "sw", "lh", "sh", "lb", "sb", "andi", "ori", "beq", "bne", "la", "li" }.Contains(instrucao)) ciclosRestantes = clkI;
             else if (new[] { "j", "jal" }.Contains(instrucao)) ciclosRestantes = clkJ;
             else ciclosRestantes = 1;
 
@@ -255,6 +256,15 @@ namespace WinFormsDemo
                         rt = ParseRegistrador(partes[1]);
                         imm = ParseImmediate(partes[2]);
                         if (rt != 0) registradores[rt] = imm;
+                        return PC + 4;
+                    case "lui":
+                        rt = ParseRegistrador(partes[1]);
+                        imm = ParseImmediate(partes[2]);
+                        if (rt != 0) registradores[rt] = imm << 16;
+                        return PC + 4;
+                    case "mul":
+                        rd = ParseRegistrador(partes[1]); rs = ParseRegistrador(partes[2]); rt = ParseRegistrador(partes[3]);
+                        if (rd != 0) registradores[rd] = registradores[rs] * registradores[rt];
                         return PC + 4;
                     case "la":
                         rt = ParseRegistrador(partes[1]);
@@ -418,8 +428,8 @@ namespace WinFormsDemo
                 int opcode = opcodes[inst];
                 codigoMaquina |= (uint)opcode << 26;
 
-                // Tipo R (opcode 0)
-                if (opcode == 0)
+                // Tipo R (opcode 0, ou 28 no caso do mul)
+                if (opcode == 0 || inst == "mul")
                 {
                     int funct = functs[inst];
                     if (inst == "syscall") { }
@@ -458,7 +468,7 @@ namespace WinFormsDemo
                 // Tipo I
                 else
                 {
-                    if (inst == "li")
+                    if (inst == "li" || inst == "lui")
                     {
                         int rt = ParseRegistrador(partes[1]);
                         int imm = ParseImmediate(partes[2]);
