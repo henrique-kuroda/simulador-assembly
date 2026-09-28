@@ -285,24 +285,11 @@ namespace WinFormsDemo
                         {
                             ProcessarMemoria(inst, ParseRegistrador(partes[1]), operand);
                         }
-                        else
+                        else if (labels.ContainsKey(operand))
                         {
-                            int reg = ParseRegistrador(partes[1]);
-                            if (labels.TryGetValue(operand, out long addr))
-                            {
-                                if (inst == "lw")
-                                {
-                                    if (memoria.TryGetValue(addr, out int value)) registradores[reg] = value;
-                                    else registradores[reg] = 0;
-                                }
-                                else if (inst == "sw")
-                                {
-                                    memoria[addr] = registradores[reg];
-                                    MemoriaModificada?.Invoke(addr);
-                                }
-                            }
-                            else throw new KeyNotFoundException($"Label '{operand}' não encontrado para instrução {inst}.");
+                            ProcessarMemoria(inst, ParseRegistrador(partes[1]), operand + "($zero)");
                         }
+                        else throw new KeyNotFoundException($"Label '{operand}' não encontrado para instrução {inst}.");
                         return PC + 4;
                     case "move":
                         rd = ParseRegistrador(partes[1]); rs = ParseRegistrador(partes[2]);
