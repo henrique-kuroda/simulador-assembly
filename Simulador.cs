@@ -111,10 +111,7 @@ namespace WinFormsDemo
                     var values = matchWord.Groups[1].Value.Split(',').Select(s => int.Parse(s.Trim()));
                     foreach (var val in values)
                     {
-                        if (labels.ContainsValue(dataAddr))
-                        {
-                            memoria[dataAddr] = val;
-                        }
+                        memoria[dataAddr] = val;
                         dataAddr += 4;
                     }
                 }
