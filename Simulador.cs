@@ -193,8 +193,8 @@ namespace WinFormsDemo
 
             PC = ExecutarInstrucao(instrucao, partes);
 
-            if (new[] { "add", "sub", "and", "or", "nor", "sll", "srl", "slt", "sltu", "jr", "syscall", "mul" }.Contains(instrucao)) ciclosRestantes = clkR;
-            else if (new[] { "addi", "lui","lw", "sw", "lh", "sh", "lb", "sb", "andi", "ori", "beq", "bne", "la", "li" }.Contains(instrucao)) ciclosRestantes = clkI;
+            if (new[] { "add", "sub", "and", "or", "nor", "sll", "srl", "slt", "sltu", "jr", "syscall", "mul", "move" }.Contains(instrucao)) ciclosRestantes = clkR;
+            else if (new[] { "addi", "lui", "lw", "sw", "lh", "sh", "lb", "sb", "andi", "ori", "beq", "bne", "blt", "bgt", "ble", "bge", "la", "li" }.Contains(instrucao)) ciclosRestantes = clkI;
             else if (new[] { "j", "jal" }.Contains(instrucao)) ciclosRestantes = clkJ;
             else ciclosRestantes = 1;
 
@@ -304,15 +304,26 @@ namespace WinFormsDemo
                             else throw new KeyNotFoundException($"Label '{operand}' não encontrado para instrução {inst}.");
                         }
                         return PC + 4;
+                    case "move":
+                        rd = ParseRegistrador(partes[1]); rs = ParseRegistrador(partes[2]);
+                        if (rd != 0) registradores[rd] = registradores[rs];
+                        return PC + 4;
                     case "beq":
                     case "bne":
+                    case "blt":
+                    case "bgt":
+                    case "ble":
+                    case "bge":
                         rs = ParseRegistrador(partes[1]); rt = ParseRegistrador(partes[2]); string label = partes[3];
                         if (!labels.TryGetValue(label, out long targetAddr))
                         {
                             int offset = ParseImmediate(label);
                             targetAddr = PC + 4 + (offset << 2);
                         }
-                        bool branch = (inst == "beq" && registradores[rs] == registradores[rt]) || (inst == "bne" && registradores[rs] != registradores[rt]);
+                        int a = registradores[rs], b = registradores[rt];
+                        bool branch = (inst == "beq" && a == b) || (inst == "bne" && a != b)
+                            || (inst == "blt" && a < b) || (inst == "bgt" && a > b)
+                            || (inst == "ble" && a <= b) || (inst == "bge" && a >= b);
                         return branch ? targetAddr : PC + 4;
                     case "j": return ParseImmediate(partes[1]);
                     case "jal":
@@ -419,6 +430,17 @@ namespace WinFormsDemo
                 var partes = ParseInstrucao(InstrucaoAtual);
                 string inst = partes[0].ToLower();
                 uint codigoMaquina = 0;
+
+                if (inst == "move") // montado como addu $d, $s, $zero
+                {
+                    int rd = ParseRegistrador(partes[1]);
+                    int rs = ParseRegistrador(partes[2]);
+                    return $"0x{((uint)rs << 21) | ((uint)rd << 11) | 33:X8}";
+                }
+                if (new[] { "blt", "bgt", "ble", "bge" }.Contains(inst))
+                {
+                    return "Pseudo-instrução";
+                }
 
                 if (!opcodes.ContainsKey(inst))
                 {
