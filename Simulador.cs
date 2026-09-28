@@ -108,7 +108,7 @@ namespace WinFormsDemo
                 var matchWord = Regex.Match(instrucao, @"\.word\s+(.+)");
                 if (matchWord.Success)
                 {
-                    var values = matchWord.Groups[1].Value.Split(',').Select(s => int.Parse(s.Trim()));
+                    var values = matchWord.Groups[1].Value.Split(',').Select(s => ParseImmediate(s));
                     foreach (var val in values)
                     {
                         memoria[dataAddr] = val;
@@ -385,7 +385,7 @@ namespace WinFormsDemo
         {
             valStr = valStr.Trim();
             if (labels.TryGetValue(valStr, out long addr)) return (int)addr;
-            if (valStr.StartsWith("0x", StringComparison.OrdinalIgnoreCase)) return int.Parse(valStr.Substring(2), NumberStyles.HexNumber);
+            if (valStr.StartsWith("0x", StringComparison.OrdinalIgnoreCase)) return (int)uint.Parse(valStr.Substring(2), NumberStyles.HexNumber);
             return int.Parse(valStr);
         }
         public int[] GetRegistradores() => (int[])registradores.Clone();
